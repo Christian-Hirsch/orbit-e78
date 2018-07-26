@@ -9,11 +9,11 @@ More precisely, the setting concerns the action of a maximal elementary abelian 
 2. The action of <img src="http://latex.codecogs.com/gif.latex?$P(S\setminus{S_k})$" /> on <img src="http://latex.codecogs.com/gif.latex?$\mathcal{O}_k$" /> is trivial.
 
 
-## Prerequisite
+## Prerequisites
 
 Version 3.4 of the [GAP system](https://www.gap-system.org) together with the [CHEVIE](http://www.math.rwth-aachen.de/~CHEVIE/) library. Most conveniently installed by following https://webusers.imj-prg.fr/~jean.michel/gap3/
 
-## Getting Started
+## Usage
 
 The core code is contained in the [orbitStructure.g](./orbitStructure.g) file, whereas [auxFun.g](./auxFun.g) contains auxiliary functions. 
 
