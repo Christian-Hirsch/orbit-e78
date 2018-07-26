@@ -1,142 +1,133 @@
-
-
-
-#check if the list doesn't contain any invariants of type e_3 or v_2x_{\alpha_4}
-e7Correct:=function(invList)
-	if( 	(["b1","b2","b3"] in invList) or
-		(["a1","a2","b3"] in invList) or
-		(["a1","b2","a3"] in invList) or
-		(["b1","a2","a3"] in invList) or
-		(["a1","b1","a4"] in invList) or
-		(["a2","b2","a4"] in invList) or
-		(["a3","b3","a4"] in invList)) then 
-		Print("Fail");
-		return;
-	fi;
-	Print("Ok");Print("\n");
-end;
-
-#an input of "a1" gives back "b1"; an input of "b2" gives back "a2", etc.
+##############################################################
+#Swap a and b
+##############################################################
+####
+# Arguments
+#        root: string of form "ai" or "bi"
+####
+# Result
+#	"ai" if input was "bi" and "bi" if input was "ai"
+####
 partner:=function(root)
-	if(root="a1") then return "b1";fi;
-	if(root="b1") then return "a1";fi;
-	if(root="a2") then return "b2";fi;
-	if(root="b2") then return "a2";fi;
-	if(root="a3") then return "b3";fi;
-	if(root="b3") then return "a3";fi;
-	if(root="a4") then return "b4";fi;
-	if(root="b4") then return "a4";fi;
-	Print("Input Fail");
+	local ab;
+	if root[1]='a' then ab:='b'; else ab:='a';fi;
+	return [ab, root[2]];
 end;
 
-#counts the number of partner-pairs contained in a list
-partnerCount:=function(List)
-local element,counter,p;
+##############################################################
+#Count number of (ai,bi) pairs in a list
+##############################################################
+####
+# Arguments
+#       rootList: list of roots
+####
+# Result
+#	number of (ai,bi) pairs in the input
+####
+partnerCount:=function(rootList)
+	local element,counter,p;
+	counter:=0;
+	for element in rootList do
+		if (partner(element) in rootList) then 
+			counter:=counter+1;
+		fi;
+	od;
+	return QuoInt(counter,2);
+end;
+
+##############################################################
+#Count number of 'a'-roots contained in a list 
+##############################################################
+####
+# Arguments
+#       rootList: list of roots
+####
+# Result
+#	number of 'a'-roots in the input
+####
+aCount:=function(rootList)
+local element,counter;
 counter:=0;
-for element in List do
-	p:=partner(element);
-	if (p in List) then 
-		counter:=counter+1;
-	fi;
+for element in rootList do
+	if element[1]='a' then counter:=counter+1;fi;
 od;
-counter:=QuoInt(counter,2);
 return counter;
 end;
 
-#counts the number of "a"-roots contained in a list
-aCount:=function(List)
-local element,counter,aList;
-aList:=["a1","a2","a3","a4"];
-counter:=0;
-for element in List do
-	if (element in aList) then counter:=counter+1;fi;
-od;
-return counter;
+##############################################################
+#Apply dictionary to list of lists
+##############################################################
+####
+# Arguments
+#        list: list of lists indexes
+#        dictionary: array
+####
+# Result
+#       list of list  words corresponding as determined by the
+#	list of list of indexes
+###
+map:=function(listList, dictionary)
+local list,transcriptionList,result,result_el,element;
+	result:=[];
+	for list in listList do
+		result_el:=[];
+		for element in list do
+			Add(result_el,dictionary[element]);
+		od;
+		Add(result,result_el);
+	od;
+return result;
 end;
 
-#check if the list doesn't contain any invariants of type e_4 or v_4
-e8Correct:=function(InvList)
-local list;
-for list in InvList do
-	if( 	partnerCount(list)=2 or
-		(partnerCount(list)=0 and
-		((aCount(list) mod 2)=0))
-		) then
-		Print("Fail");
-		return;
+
+###############################################################
+#Check if action structure for E7 is correct
+##############################################################
+####
+# Arguments
+#        rootLists: list of lists of roots 
+####
+# Result
+#	false if the input contains a list of type [ai,bi,a4]
+#	or a list of type [x1,y2,z3] with an even number of 
+#	a's
+####
+e7Correct:=function(rootLists)
+	if( 	(["b1","b2","b3"] in rootLists) or
+		(["a1","a2","b3"] in rootLists) or
+		(["a1","b2","a3"] in rootLists) or
+		(["b1","a2","a3"] in rootLists) or
+		(["a1","b1","a4"] in rootLists) or
+		(["a2","b2","a4"] in rootLists) or
+		(["a3","b3","a4"] in rootLists)) then 
+		return false;
 	fi;
-od;
-	Print("Ok");Print("\n");
+	return true;
 end;
 
-
-e7Transcription:=function(n)
-local dictionary;
-if (n>7) then Print("Transcription Fail");return;fi;
-dictionary:=["a1","b1","a2","b2","a3","b3","a4"];
-return dictionary[n];
-end;
-
-e7TranscriptionList:=function(list)
-local element,transcription,result;
-	result:=[];
-	for element in list do
-		transcription:=e7Transcription(element);
-		Add(result,transcription);
+###############################################################
+#Check if action structure for E8 is correct
+##############################################################
+####
+# Arguments
+#        rootLists: list of lists of roots 
+####
+# Result
+#	true if every list in the input is either of the form
+#	[w1, x2, y3, z4] with an odd number of a's or of the
+#	form [ai,bi,xj,yk]
+####
+e8Correct:=function(rootLists)
+	local list;
+	for list in rootLists do
+		if( 	partnerCount(list)=2 or
+			(partnerCount(list)=0 and
+			((aCount(list) mod 2)=0))
+			) then
+			return false;
+		fi;
 	od;
-return result;
-end;
+	return true;
+	end;
 
-e7TranscriptionListList:=function(listList)
-local list,transcriptionList,result;
-	result:=[];
-	for list in listList do
-		transcriptionList:=e7TranscriptionList(list);
-		Add(result,transcriptionList);
-	od;
-return result;
-end;
-
-e8Transcription:=function(n)
-local dictionary;
-if (n>8) then Print("Transcription Fail");return;fi;
-dictionary:=["a1","b1","a2","b2","a3","b3","a4","b4"];
-return dictionary[n];
-end;
-
-e8TranscriptionList:=function(list)
-local element,transcription,result;
-	result:=[];
-	for element in list do
-		transcription:=e8Transcription(element);
-		Add(result,transcription);
-	od;
-return result;
-end;
-
-e8TranscriptionListList:=function(listList)
-local list,transcriptionList,result;
-	result:=[];
-	for list in listList do
-		transcriptionList:=e8TranscriptionList(list);
-		Add(result,transcriptionList);
-	od;
-return result;
-end;
-
-fullCheckE7:=function(URoots,PRoots)
-local W,X,Y;
-W:=CoxeterGroup("E",7);
-X:=fullCheck(W,URoots,PRoots);
-Y:=e7TranscriptionListList(X);
-return Y;
-end;
-
-fullCheckE8:=function(URoots,PRoots)
-local W,X,Y;
-W:=CoxeterGroup("E",8);
-X:=fullCheck(W,URoots,PRoots);
-Y:=e8TranscriptionListList(X);
-return Y;
-end;
 
